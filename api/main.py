@@ -5,7 +5,7 @@ from sqlalchemy import exc
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:'\
-                                        'mysecretpassword@localhost'\
+                                        'mysecretpassword@postgres'\
                                         ':5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
@@ -43,4 +43,4 @@ def getNext():
 
 
 if __name__ == "__main__":
-    app.run(port='5000', debug=True)
+    app.run(host='0.0.0.0', port='5000', debug=True)

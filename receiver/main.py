@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 engine = create_engine(
-    'postgresql://postgres:mysecretpassword@localhost:5432/postgres',
+    'postgresql://postgres:mysecretpassword@postgres:5432/postgres',
     echo=True)
 
 Session = sessionmaker(bind=engine)
@@ -34,7 +34,7 @@ class Fib(Base):
 
 def main():
     connection = pika.BlockingConnection(
-                 pika.ConnectionParameters(host='localhost'))
+                 pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
 
     channel.queue_declare(queue='fib')

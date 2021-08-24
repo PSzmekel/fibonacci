@@ -1,0 +1,76 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    restart: always
+    networks:
+      - fibnetwork
+    ports:
+        - 5672:5672
+        - 15672:15672
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    networks:
+      - fibnetwork
+    ports: 
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  receiver:
+    build: 
+      context: ./receiver
+      dockerfile: Dockerfile
+    container_name: receiver
+    restart: always
+    networks:
+      - fibnetwork
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api
+    restart: always
+    networks:
+      - fibnetwork
+    ports:
+     - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  generator:
+    build: 
+      context: ./generator
+      dockerfile: Dockerfile
+    container_name: generator
+    restart: always
+    networks:
+      - fibnetwork
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+networks:
+      fibnetwork:
+          driver: bridge
