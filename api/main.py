@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
@@ -18,7 +18,7 @@ class Fib(db.Model):
     read = db.Column(db.Boolean, unique=False, default=False)
 
     def json(self):
-        return {'id': self.id, 'fib': self.fib}
+        return {'fibNumber': self.fib}
 
     def get():
         fib = Fib.query.filter(Fib.read.is_(False)).order_by(
@@ -39,7 +39,7 @@ def getNext():
     if json is None:
         return Response("no more data", status=404,
                         mimetype='application/json')
-    return jsonify({'fib': json})
+    return json
 
 
 if __name__ == "__main__":
