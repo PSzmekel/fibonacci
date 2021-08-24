@@ -6,7 +6,7 @@ import os
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
-channel.queue_declare(queue='hello')
+channel.queue_declare(queue='fib')
 
 queue = asyncio.Queue()
 sleepFor = 1
@@ -19,7 +19,7 @@ class Send():
             print(queue)
             body = await queue.get()
             channel.basic_publish(exchange='',
-                                  routing_key='hello',
+                                  routing_key='fib',
                                   body=body)
             print('Sent ', body)
             await asyncio.sleep(sleepFor)
