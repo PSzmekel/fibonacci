@@ -1,5 +1,5 @@
 import pika
-import time
+import asyncio
 import sys
 import os
 
@@ -8,35 +8,51 @@ channel = connection.channel()
 
 channel.queue_declare(queue='hello')
 
+queue = asyncio.Queue()
+sleepFor = 1
+
 
 class Send():
-    def rabbitmqSending(body):
-        channel.basic_publish(exchange='',
-                              routing_key='hello',
-                              body=body)
-        print('Sent ', body)
-        time.sleep(5)
+    async def rabbitmqSending(queue):
+        while True:
+            print('send')
+            print(queue)
+            body = await queue.get()
+            channel.basic_publish(exchange='',
+                                  routing_key='hello',
+                                  body=body)
+            print('Sent ', body)
 
 
 class FibonacciGen():
-    n1, n2 = 0, 1
-
-    def gen(self):
+    async def gen(timeToSleep, queue):
+        n1, n2 = 0, 1
         while True:
-            Send.rabbitmqSending(str(self.n1))
-            nth = self.n1 + self.n2
-            self.n1 = self.n2
-            self.n2 = nth
+            await queue.put(str(n1))
+            print(queue)
+            nth = n1 + n2
+            n1 = n2
+            n2 = nth
+            await asyncio.sleep(timeToSleep)
 
 
-def main():
-    fib = FibonacciGen()
-    fib.gen()
+async def main():
+    
+    # tasks = []
+    # task = asyncio.create_task(FibonacciGen.gen(sleepFor, queue))
+    # tasks.append(task)
+    # task = asyncio.create_task(Send.rabbitmqSending(queue))
+    # tasks.append(task)
+
+    await asyncio.gather(
+        FibonacciGen.gen(sleepFor, queue),
+        Send.rabbitmqSending(queue),
+    )
 
 
 if __name__ == '__main__':
     try:
-        main()
+        asyncio.run(main())
     except KeyboardInterrupt:
         print('Interrupted')
         try:
