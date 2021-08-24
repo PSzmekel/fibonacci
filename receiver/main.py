@@ -11,7 +11,8 @@ engine = create_engine(
     'postgresql://postgres:mysecretpassword@localhost:5432/postgres',
     echo=True)
 
-session = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 
 class Fib(Base):
