@@ -22,6 +22,7 @@ class Send():
                                   routing_key='hello',
                                   body=body)
             print('Sent ', body)
+            await asyncio.sleep(sleepFor)
 
 
 class FibonacciGen():
@@ -33,17 +34,10 @@ class FibonacciGen():
             nth = n1 + n2
             n1 = n2
             n2 = nth
-            await asyncio.sleep(timeToSleep)
+            await asyncio.sleep(sleepFor)
 
 
 async def main():
-    
-    # tasks = []
-    # task = asyncio.create_task(FibonacciGen.gen(sleepFor, queue))
-    # tasks.append(task)
-    # task = asyncio.create_task(Send.rabbitmqSending(queue))
-    # tasks.append(task)
-
     await asyncio.gather(
         FibonacciGen.gen(sleepFor, queue),
         Send.rabbitmqSending(queue),
